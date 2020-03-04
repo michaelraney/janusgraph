@@ -346,13 +346,16 @@ public class CQLStoreManager extends DistributedStoreManager implements KeyColum
         try {
             final ResultSet versionResultSet = this.session.execute(
                 select().column("release_version").from("system", "local") );
-            final String version = versionResultSet.one().getString(0);
+            final String version = versionResultSet.one().getString("release_version");
             final int major = Integer.parseInt(version.substring(0, version.indexOf(".")));
             // starting with Cassandra 3 COMPACT STORAGE is deprecated and has no impact
             return (major < 3);
         } catch (NumberFormatException | NoHostAvailableException | QueryExecutionException | QueryValidationException e) {
-            throw new PermanentBackendException("Error determining Cassandra version", e);
+            // unable to determine Compaction storage. 
+            // Assume its a newer version of cassandra and the option is deprecated or removed
+            LOGGER.error("Error determining Cassandra version. If version less than Cassandra 3 Compaction Storage will not be enabled", e);
         }
+        return false;
     }
 
     boolean isCompactStorageAllowed() {
