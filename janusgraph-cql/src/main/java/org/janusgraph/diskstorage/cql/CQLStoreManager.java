@@ -207,6 +207,7 @@ public class CQLStoreManager extends DistributedStoreManager implements KeyColum
 
         final String partitioner = this.cluster.getMetadata().getPartitioner();
         switch (partitioner.substring(partitioner.lastIndexOf('.') + 1)) {
+            case "DefaultPartitioner":
             case "RandomPartitioner":
             case "Murmur3Partitioner": {
                 fb.keyOrdered(false).orderedScan(false).unorderedScan(true);
